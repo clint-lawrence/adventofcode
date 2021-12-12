@@ -1,5 +1,4 @@
 use std::fs;
-use std::collections::HashSet;
 
 const DIM: usize = 10;
 
@@ -13,7 +12,6 @@ fn neighbours(x: usize, y: usize) -> impl Iterator<Item = (usize, usize)> {
 }
 
 fn do_generation(octopi: &mut [[u32; DIM]; DIM]) -> u32 {
-    let mut reset_list: HashSet<(usize, usize)>= HashSet::new();
     let mut flash: Vec<(usize, usize)> = Vec::new();
     let mut flash_count = 0;
 
@@ -24,29 +22,27 @@ fn do_generation(octopi: &mut [[u32; DIM]; DIM]) -> u32 {
             if octopi[y][x] > 9 {
                 // if greater than 9, queue it to flash
                 flash.push((x, y));
-                reset_list.insert((x, y));
             }
         }
     }
 
-    // do the flash and distribute energy
+    // do the flash, reset & distribute energy
     while let Some((flash_x, flash_y)) = flash.pop() {
         flash_count += 1;
-
+        octopi[flash_y][flash_x] = 0;
         for (x, y) in neighbours(flash_x, flash_y) {
-            octopi[y][x] += 1;
+            let neighbour = &mut octopi[y][x];
+            if *neighbour == 0 || *neighbour > 9 {
+                continue;
+            }
+            *neighbour += 1;
 
-            if octopi[y][x] > 9 &&  !reset_list.contains(&(x,y)) {
+            if *neighbour > 9 {
                 flash.push((x,y));
-                reset_list.insert((x, y));
             }
         }
     }
 
-    // reset the energy for each octopus that flashed
-    for (reset_x, reset_y) in reset_list {
-        octopi[reset_y][reset_x] = 0;
-    }
     flash_count
 }
 
@@ -57,6 +53,8 @@ fn _print_them(octopi: & [[u32; DIM]; DIM]){
         }
 }
 
+
+// 1617
 fn part_a(input: &String) -> u32 {
     let mut octopi = [[0_u32; DIM]; DIM];
     for (i,line) in input.lines().enumerate() {
@@ -76,7 +74,7 @@ fn part_a(input: &String) -> u32 {
 }
 
 
-
+// 258
 fn part_b(input: &String) -> i32 {
     let mut octopi = [[0_u32; DIM]; DIM];
     for (i,line) in input.lines().enumerate() {
