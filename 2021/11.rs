@@ -8,7 +8,6 @@ fn neighbours(x: usize, y: usize) -> impl Iterator<Item = (usize, usize)> {
 
     yr.flat_map(move |yi| xr.clone().map(move |xi|
         ((x as isize + xi) as usize, (y as isize+yi) as usize)))
-        .filter(move |(xi, yi)| !((x == *xi) && (y == *yi)))
 }
 
 fn do_generation(octopi: &mut [[u32; DIM]; DIM]) -> u32 {
