@@ -64,6 +64,20 @@ fn fold_paper(points: HashSet<(u32, u32)>, fold_type: Fold) -> HashSet<(u32, u32
         .collect()
 }
 
+// If I don't allow for the complication of a "longer" fold,
+// things get simplified a fair bit 
+fn fold_paper2(points: HashSet<(u32, u32)>, fold_type: Fold) -> HashSet<(u32, u32)> {
+    points
+        .iter()
+        .map(|&(x, y)| {
+            match fold_type {
+                Fold::X(f) => (if x > f { 2*f - x } else { x }, y),
+                Fold::Y(f) => (x, if y > f { 2*f - y } else { y })
+            }
+        })
+        .collect()
+}
+
 // 807
 fn part_a(input: &String) -> u32 {
     let (points, folds) = input.split_once("\n\n").unwrap();
@@ -75,7 +89,7 @@ fn part_a(input: &String) -> u32 {
 
     let fold = folds
         .lines()
-        .map(|line: &str| {
+        .map(|line| {
             match line
                 .strip_prefix("fold along ")
                 .unwrap()
@@ -112,7 +126,7 @@ fn part_b(input: &String) -> u32 {
 
     // fold along x=655
     // fold along y=447
-    let folds = folds.lines().map(|line: &str| {
+    let folds = folds.lines().map(|line| {
         match line
             .strip_prefix("fold along ")
             .unwrap()
@@ -125,7 +139,7 @@ fn part_b(input: &String) -> u32 {
         }
     });
 
-    let code = folds.fold(points, |acc, f| fold_paper(acc, f));
+    let code = folds.fold(points, |acc, f| fold_paper2(acc, f));
     print_page(&code);
     0
 }
